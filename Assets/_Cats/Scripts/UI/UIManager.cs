@@ -17,6 +17,9 @@ public class UIManager : MonoBehaviour
     public int CurrentPageIndex => currentPageIndex;
     public int TotalPages => pagePerent.childCount;
     
+    // Session-only page memory (not saved between app launches)
+    private static int? sessionLastPage = null;
+    
     // Animation state
     private bool isTransitioning = false;
 
@@ -31,7 +34,7 @@ public class UIManager : MonoBehaviour
             page.anchoredPosition = Vector2.right * i * pageWidth;
         }
 
-        ShowPage(2);
+        ReturnToLastPage();
     }
 
     public void ShowPage(int pageIndex)
@@ -57,6 +60,9 @@ public class UIManager : MonoBehaviour
         pageChanged?.Invoke(pageIndex);
         staticPageChanged?.Invoke();
         currentPageIndex = pageIndex;
+        
+        // Save current page for this session only
+        SaveCurrentPageForSession();
     }
     
     public void NextPage()
@@ -83,6 +89,45 @@ public class UIManager : MonoBehaviour
     public bool CanGoPrevious()
     {
         return currentPageIndex > 0 && !isTransitioning;
+    }
+    
+    public void ReturnToLastPage()
+    {
+        int pageToShow = GetSessionLastPage();
+        ShowPage(pageToShow);
+    }
+    
+    public void ManualReturnToLastPage()
+    {
+        ReturnToLastPage();
+    }
+    
+    public void SaveCurrentPageForSession()
+    {
+        if (currentPageIndex >= 0)
+        {
+            sessionLastPage = currentPageIndex;
+        }
+    }
+    
+    public int GetSessionLastPage()
+    {
+        if (sessionLastPage.HasValue)
+        {
+            int savedPage = sessionLastPage.Value;
+            
+            if (savedPage >= 0 && savedPage < TotalPages)
+            {
+                return savedPage;
+            }
+        }
+        
+        return 2; 
+    }
+    
+    public void ClearSessionPage()
+    {
+        sessionLastPage = null;
     }
 
     public static Action staticPageChanged { get; set; }
