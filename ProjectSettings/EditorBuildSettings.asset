@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Cats/Scenes/Main.unity
     guid: 69f82e388611ab340a5e0c0c510f997b
+  - enabled: 1
+    path: Assets/_Cats/Scenes/Game.unity
+    guid: 2403c9481a5b85649b97734b3263e1d3
   m_configObjects:
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: d86ddcbae01721548b866420e8e87502, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

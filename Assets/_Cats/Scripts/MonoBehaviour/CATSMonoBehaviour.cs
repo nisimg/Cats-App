@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class CATSMonoBehaviour : MonoBehaviour, ICATSUpdatable
 {
-    CATSManager _manager => CATSManager.Instance;
+   protected CATSManager _manager => CATSManager.Instance;
 
     protected void AddListener(CATSEventNames eventName, Action<object> onGameStart) =>
         _manager.EventsManager.AddListener(eventName, onGameStart);
@@ -39,7 +39,7 @@ public class CATSMonoBehaviour : MonoBehaviour, ICATSUpdatable
         onComplete?.Invoke();
     }
 
-    public void Start()
+    public virtual void Start()
     {
         _manager.UpdateManager.RegisterUpdatable(this);
     }
