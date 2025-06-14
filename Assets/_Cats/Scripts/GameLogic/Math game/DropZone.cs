@@ -58,6 +58,7 @@ namespace _cats.Scripts.MathGame
 
         public void RemoveTile()
         {
+           
             currentTile = null;
             UpdateVisualState();
             
@@ -83,6 +84,14 @@ namespace _cats.Scripts.MathGame
             var tile = eventData.pointerDrag?.GetComponent<MathTile>();
             if (tile != null && CanAcceptTile(tile))
             {
+                PlaceTile(tile);
+            }
+
+            if (CanAcceptTile(tile) == false)
+            {
+
+                currentTile.ReturnToTileContainer();
+                RemoveTile();
                 PlaceTile(tile);
             }
         }

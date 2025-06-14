@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using _cats.Scripts.Core;
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,103 +9,85 @@ namespace _cats.Scripts.MathGame
 {
     public class MathGameManager : CATSMonoBehaviour
     {
-        [Header("Game References")]
-        public DropZone firstNumberZone;
+        [Header("Game References")] public DropZone firstNumberZone;
         public DropZone secondNumberZone;
         public DropZone resultZone;
-        public Text operationText;
+        public TextMeshProUGUI operationText;
         public Transform tilesParent;
         public GameObject tilePrefab;
-        
-        [Header("UI References")]
-        public Text scoreText;
-        public Text levelText;
-        public Text feedbackText;
+
+        [Header("UI References")] 
+        public TextMeshProUGUI scoreText;
+        public TextMeshProUGUI levelText;
+        public TextMeshProUGUI feedbackText;
         public Button checkButton;
         public Button newEquationButton;
         public Button resetButton;
-        
-        [Header("Game Settings")]
-        public int baseScore = 10;
+
+        [Header("Game Settings")] public int baseScore = 10;
         public int wrongTileCount = 2;
         public Color[] tileColors;
-        
-        [Header("Audio Clips")]
-        public AudioClip correctSound;
+
+        [Header("Audio Clips")] public AudioClip correctSound;
         public AudioClip incorrectSound;
         public AudioClip levelUpSound;
-        
-        private int currentScore = 0;
-        private int currentLevel = 1;
+
+        [SerializeField]private int currentScore = 0;
+        [SerializeField] private int currentLevel = 1;
         [SerializeField] private MathEquation currentEquation;
         private List<MathTile> activeTiles = new List<MathTile>();
-        private List<string> availableOperations = new List<string> { "+", "-" };
+        private List<string> availableOperations = new List<string> {"+", "-"};
 
         public override void Start()
         {
             base.Start();
-            
             InitializeGame();
             SetupAudio();
             GenerateNewEquation();
-            
-            Debug.Log("🧮 MathGameManager Started!");
         }
 
         void InitializeGame()
         {
-            // Setup button listeners
             if (checkButton != null)
                 checkButton.onClick.AddListener(CheckAnswer);
-            
+
             if (newEquationButton != null)
                 newEquationButton.onClick.AddListener(GenerateNewEquation);
-            
+
             if (resetButton != null)
                 resetButton.onClick.AddListener(ResetTiles);
 
             UpdateUI();
-            
-            Debug.Log("🎮 Game Initialized!");
         }
 
         void SetupAudio()
         {
             var audioManager = _manager.AudioManager;
-            
+
             if (correctSound != null)
                 audioManager.LoadAudioClip("CorrectAnswer", correctSound);
-            
+
             if (incorrectSound != null)
                 audioManager.LoadAudioClip("IncorrectAnswer", incorrectSound);
-            
+
             if (levelUpSound != null)
                 audioManager.LoadAudioClip("LevelUp", levelUpSound);
-                
-            Debug.Log("🎵 Audio Setup Complete!");
         }
 
         public void GenerateNewEquation()
         {
             ClearCurrentTiles();
-            
             currentEquation = CreateEquation();
             DisplayEquation();
             CreateTiles();
-            
             ShowFeedback("", Color.white);
-            
             InvokeEvent(CATSEventNames.OnGameStart, currentEquation);
-            
-            Debug.Log($"📊 New Equation: {currentEquation.firstNumber} {currentEquation.operation} {currentEquation.secondNumber} = {currentEquation.result}");
         }
 
         MathEquation CreateEquation()
         {
             var equation = new MathEquation();
-            
             UpdateAvailableOperations();
-            
             string operation = availableOperations[Random.Range(0, availableOperations.Count)];
             equation.operation = operation;
 
@@ -115,20 +98,20 @@ namespace _cats.Scripts.MathGame
                     equation.secondNumber = Random.Range(1, currentLevel * 5 + 5);
                     equation.result = equation.firstNumber + equation.secondNumber;
                     break;
-                    
+
                 case "-":
                     equation.result = Random.Range(1, currentLevel * 3 + 3);
                     equation.secondNumber = Random.Range(1, equation.result);
                     equation.firstNumber = equation.result + equation.secondNumber;
                     equation.result = equation.firstNumber - equation.secondNumber;
                     break;
-                    
+
                 case "×":
                     equation.firstNumber = Random.Range(1, Mathf.Min(currentLevel + 2, 10));
                     equation.secondNumber = Random.Range(1, Mathf.Min(currentLevel + 2, 10));
                     equation.result = equation.firstNumber * equation.secondNumber;
                     break;
-                    
+
                 case "÷":
                     equation.secondNumber = Random.Range(1, Mathf.Min(currentLevel + 2, 10));
                     equation.result = Random.Range(1, Mathf.Min(currentLevel + 2, 10));
@@ -143,13 +126,13 @@ namespace _cats.Scripts.MathGame
         {
             availableOperations.Clear();
             availableOperations.Add("+");
-            
+
             if (currentLevel >= 2)
                 availableOperations.Add("-");
-            
+
             if (currentLevel >= 4)
                 availableOperations.Add("×");
-            
+
             if (currentLevel >= 6)
                 availableOperations.Add("÷");
         }
@@ -158,8 +141,7 @@ namespace _cats.Scripts.MathGame
         {
             if (operationText != null)
                 operationText.text = currentEquation.operation;
-            
-            // Clear drop zones
+
             firstNumberZone.ClearZone();
             secondNumberZone.ClearZone();
             resultZone.ClearZone();
@@ -167,11 +149,8 @@ namespace _cats.Scripts.MathGame
 
         void CreateTiles()
         {
-            if (tilePrefab == null || tilesParent == null) 
-            {
-                Debug.LogError("❌ Tile prefab or tiles parent is missing!");
+            if (tilePrefab == null || tilesParent == null)
                 return;
-            }
 
             List<int> tileValues = new List<int>
             {
@@ -180,7 +159,6 @@ namespace _cats.Scripts.MathGame
                 currentEquation.result
             };
 
-            // Add wrong numbers
             for (int i = 0; i < wrongTileCount; i++)
             {
                 int wrongValue;
@@ -188,11 +166,10 @@ namespace _cats.Scripts.MathGame
                 {
                     wrongValue = Random.Range(1, currentLevel * 10 + 10);
                 } while (tileValues.Contains(wrongValue));
-                
+
                 tileValues.Add(wrongValue);
             }
 
-            // Shuffle the values
             for (int i = 0; i < tileValues.Count; i++)
             {
                 int temp = tileValues[i];
@@ -201,37 +178,28 @@ namespace _cats.Scripts.MathGame
                 tileValues[randomIndex] = temp;
             }
 
-            // Create tile objects
             for (int i = 0; i < tileValues.Count; i++)
             {
                 GameObject tileGO = Instantiate(tilePrefab, tilesParent);
                 MathTile tile = tileGO.GetComponent<MathTile>();
-                
+
                 if (tile != null)
                 {
                     tile.Initialize(tileValues[i]);
                     activeTiles.Add(tile);
-                    
-                    // Set random color
+
                     if (tileColors.Length > 0)
                     {
                         Color randomColor = tileColors[Random.Range(0, tileColors.Length)];
                         tile.tileImage.color = randomColor;
                     }
 
-                    // Animate tile appearance
                     tileGO.transform.localScale = Vector3.zero;
                     tileGO.transform.DOScale(Vector3.one, 0.3f)
                         .SetDelay(i * 0.1f)
                         .SetEase(Ease.OutBack);
                 }
-                else
-                {
-                    Debug.LogError("❌ MathTile component not found on prefab!");
-                }
             }
-            
-            Debug.Log($"🧩 Created {tileValues.Count} tiles");
         }
 
         void ClearCurrentTiles()
@@ -244,6 +212,7 @@ namespace _cats.Scripts.MathGame
                         .OnComplete(() => Destroy(tile.gameObject));
                 }
             }
+
             activeTiles.Clear();
         }
 
@@ -257,7 +226,6 @@ namespace _cats.Scripts.MathGame
 
         public void CheckAnswer()
         {
-            // Check if all zones are filled
             if (firstNumberZone.IsEmpty() || secondNumberZone.IsEmpty() || resultZone.IsEmpty())
             {
                 ShowFeedback("Please fill all positions first!", Color.red);
@@ -267,32 +235,28 @@ namespace _cats.Scripts.MathGame
             int userFirst = firstNumberZone.GetCurrentValue();
             int userSecond = secondNumberZone.GetCurrentValue();
             int userResult = resultZone.GetCurrentValue();
-            
-            Debug.Log($"🔍 Checking: {userFirst} {currentEquation.operation} {userSecond} = {userResult}");
-            Debug.Log($"🎯 Correct: {currentEquation.firstNumber} {currentEquation.operation} {currentEquation.secondNumber} = {currentEquation.result}");
 
             bool isCorrect = false;
 
-            // Check if the result is correct first
-            if (userResult == currentEquation.result)
+            switch (currentEquation.operation)
             {
-                // For commutative operations (+ and ×), order doesn't matter
-                if (currentEquation.operation == "+" || currentEquation.operation == "×")
-                {
-                    // Check both possible orders
-                    bool order1 = (userFirst == currentEquation.firstNumber && userSecond == currentEquation.secondNumber);
-                    bool order2 = (userFirst == currentEquation.secondNumber && userSecond == currentEquation.firstNumber);
-                    
-                    isCorrect = order1 || order2;
-                }
-                else
-                {
-                    // For non-commutative operations (- and ÷), order matters
-                    isCorrect = (userFirst == currentEquation.firstNumber && userSecond == currentEquation.secondNumber);
-                }
-            }
+                case "+":
+                    isCorrect = (userFirst + userSecond == userResult);
+                    break;
 
-            Debug.Log($"✅ Answer is {(isCorrect ? "CORRECT" : "INCORRECT")}");
+                case "-":
+                    isCorrect = (userFirst - userSecond == userResult);
+                    break;
+
+                case "×":
+                    isCorrect = (userFirst * userSecond == userResult);
+                    break;
+
+                case "÷":
+                    isCorrect = (userSecond != 0 && userFirst / userSecond == userResult &&
+                                 userFirst % userSecond == 0);
+                    break;
+            }
 
             if (isCorrect)
             {
@@ -306,78 +270,87 @@ namespace _cats.Scripts.MathGame
 
         void HandleCorrectAnswer()
         {
-            // Update score
+            int userFirst = firstNumberZone.GetCurrentValue();
+            int userSecond = secondNumberZone.GetCurrentValue();
+            int userResult = resultZone.GetCurrentValue();
+
             currentScore += baseScore * currentLevel;
-            
-            // Play audio
             _manager.AudioManager.PlaySFX("CorrectAnswer", 0.8f);
-            
-            // Visual feedback
-            ShowFeedback("🎉 Correct! Well done!", Color.green);
-            
-            // Animate drop zones
+
+            string solvedEquation = $"{userFirst} {currentEquation.operation} {userSecond} = {userResult}";
+            ShowFeedback($" Correct! {solvedEquation}", Color.green);
+
             firstNumberZone.AnimateCorrect();
             secondNumberZone.AnimateCorrect();
             resultZone.AnimateCorrect();
-            
-            // Create celebration effect
+
             CreateCelebrationEffect();
-            
-            // Check level up
+
             if (currentScore >= currentLevel * 100)
             {
                 LevelUp();
             }
-            
+
             UpdateUI();
-            
-            // Generate new equation after delay
             Invoke(nameof(GenerateNewEquation), 2f);
-            
-            // Trigger event
             InvokeEvent(CATSEventNames.OnValueChanged, currentScore);
-            
-            Debug.Log($"🎉 Correct answer! Score: {currentScore}");
+        }
+
+        bool IsEquationMathematicallyCorrect(int first, int second, int result, string operation)
+        {
+            switch (operation)
+            {
+                case "+":
+                    return first + second == result;
+                case "-":
+                    return first - second == result;
+                case "×":
+                    return first * second == result;
+                case "÷":
+                    return second != 0 && first / second == result && first % second == 0;
+                default:
+                    return false;
+            }
+        }
+
+        bool AreAllNumbersFromAvailableTiles(int first, int second, int result)
+        {
+            List<int> availableNumbers = new List<int>
+            {
+                currentEquation.firstNumber,
+                currentEquation.secondNumber,
+                currentEquation.result
+            };
+
+            return availableNumbers.Contains(first) &&
+                   availableNumbers.Contains(second) &&
+                   availableNumbers.Contains(result);
         }
 
         void HandleIncorrectAnswer()
         {
-            // Play audio
             _manager.AudioManager.PlaySFX("IncorrectAnswer", 0.6f);
-            
-            // Visual feedback
-            ShowFeedback("❌ Try again! Check your numbers.", Color.red);
-            
-            // Animate drop zones
+            ShowFeedback("Try again! Check your numbers.", Color.red);
+
             firstNumberZone.AnimateIncorrect();
             secondNumberZone.AnimateIncorrect();
             resultZone.AnimateIncorrect();
-            
-            Debug.Log("❌ Incorrect answer!");
         }
 
         void LevelUp()
         {
             currentLevel++;
-            
-            // Play level up sound
             _manager.AudioManager.PlaySFX("LevelUp", 1f);
-            
-            // Visual feedback
-            ShowFeedback($"🌟 Level Up! Welcome to Level {currentLevel}!", Color.yellow);
-            
-            // Scale animation for level text
+            ShowFeedback($" Level Up! Welcome to Level {currentLevel}!", Color.yellow);
+
             if (levelText != null)
             {
                 levelText.transform.DOPunchScale(Vector3.one * 0.5f, 1f, 10, 1f);
             }
-            
-            Debug.Log($"🌟 Level Up! Now at level {currentLevel}");
         }
 
         void CreateCelebrationEffect()
         {
-            // Trigger celebration event
             InvokeEvent(CATSEventNames.OnGameOver, "celebration");
         }
 
@@ -386,10 +359,7 @@ namespace _cats.Scripts.MathGame
             firstNumberZone.ClearZone();
             secondNumberZone.ClearZone();
             resultZone.ClearZone();
-            
             ShowFeedback("", Color.white);
-            
-            Debug.Log("🔄 Tiles Reset");
         }
 
         void ShowFeedback(string message, Color color)
@@ -398,7 +368,7 @@ namespace _cats.Scripts.MathGame
             {
                 feedbackText.text = message;
                 feedbackText.color = color;
-                
+
                 if (!string.IsNullOrEmpty(message))
                 {
                     feedbackText.transform.DOPunchScale(Vector3.one * 0.2f, 0.5f, 10, 1f);
@@ -410,7 +380,7 @@ namespace _cats.Scripts.MathGame
         {
             if (scoreText != null)
                 scoreText.text = $"Score: {currentScore}";
-            
+
             if (levelText != null)
                 levelText.text = $"Level: {currentLevel}";
         }
@@ -420,11 +390,8 @@ namespace _cats.Scripts.MathGame
             DOTween.KillAll();
         }
 
-        // Public properties for debugging
         public int CurrentScore => currentScore;
         public int CurrentLevel => currentLevel;
         public MathEquation CurrentEquation => currentEquation;
     }
-
-
 }

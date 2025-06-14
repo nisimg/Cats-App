@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using DG.Tweening;
+using TMPro;
 
 namespace _cats.Scripts.MathGame
 {
@@ -10,7 +11,7 @@ namespace _cats.Scripts.MathGame
     {
         [Header("Tile Settings")]
         public int value;
-        public Text valueText;
+        public TextMeshProUGUI valueText;
         public Image tileImage;
         public CanvasGroup canvasGroup;
         
@@ -98,15 +99,12 @@ namespace _cats.Scripts.MathGame
             }
             else
             {
-                // Check if we were originally in a drop zone
                 if (currentDropZone != null)
                 {
-                    // We were in a drop zone, so return to tile container
                     ReturnToTileContainer();
                 }
                 else
                 {
-                    // We were in tile area, return to original position
                     ReturnToOriginalPosition();
                 }
             }
@@ -159,9 +157,8 @@ namespace _cats.Scripts.MathGame
             CATSManager.Instance.AudioManager.PlaySFX("TileReturn", 0.3f);
         }
 
-        void ReturnToTileContainer()
+       public void ReturnToTileContainer()
         {
-            // Remove from current drop zone first
             RemoveFromDropZone();
          
             
@@ -169,18 +166,18 @@ namespace _cats.Scripts.MathGame
             if (tileContainer != null)
             {
                 transform.SetParent(tileContainer.transform, false);
-                transform.localScale = originalScale; // Ensure correct scale
+                //transform.localScale = originalScale;
                 transform.DOLocalMove(Vector3.one, animationDuration)
                     .SetEase(Ease.OutBounce);
                 
                 canvasGroup.alpha = 1f;
                 CATSManager.Instance.AudioManager.PlaySFX("TileReturn", 0.3f);
                 
-                Debug.Log($"🔄 Tile {value} returned to container: {tileContainer.name}");
+                Debug.Log($" Tile {value} returned to container: {tileContainer.name}");
             }
             else
             {
-                Debug.LogWarning("❌ Tile container not found! Returning to original position.");
+                Debug.LogWarning(" Tile container not found! Returning to original position.");
                 ReturnToOriginalPosition();
             }
         }
