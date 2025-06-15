@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 5d92cbd49c80dab439bf5d9db3c0ed11
+timeCreated: 1554406563
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 54947
+  packageName: Low Poly Shooter Pack v4.3
+  packageVersion: 4.3.1
+  assetPath: Assets/Infima Games/Low Poly Shooter Pack/_Legacy/Prefabs/Magazines/(Legacy)P_SMG_01_Mag_Full.prefab
+  uploadId: 556432

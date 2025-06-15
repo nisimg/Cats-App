@@ -1,9 +1,11 @@
 ﻿using System;
+using _cats.Core;
 using _cats.Scripts.Core._cats.Scripts.Core;
 using UnityEngine;
 
 namespace _cats.Scripts.Core
 {
+    [Serializable]
     public class CATSManager
     {
         public Action onInitAction;
@@ -16,6 +18,8 @@ namespace _cats.Scripts.Core
         public CATSAudioManager AudioManager { get; set; }
         public CATSSceneManager SceneManager { get; set; }
         public CATSUpdateManager UpdateManager { get; set; }
+
+        public CATSCurrencyManager currencyManager;
 
         public CATSManager(Action<bool> onInitAction)
         {
@@ -61,8 +65,11 @@ namespace _cats.Scripts.Core
             
             UpdateManager = CATSUpdateManager.Instance;
             Debug.Log("UpdateManager");
-            
+
+            currencyManager = new CATSCurrencyManager();
             onInitAction?.Invoke(true);
+            
+            
         }
     }
 }

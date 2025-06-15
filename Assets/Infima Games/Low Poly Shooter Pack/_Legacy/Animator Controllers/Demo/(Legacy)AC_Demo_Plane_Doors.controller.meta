@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 47d2cf2b6f5944143be20a0aba5ed338
+timeCreated: 1566284217
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 54947
+  packageName: Low Poly Shooter Pack v4.3
+  packageVersion: 4.3.1
+  assetPath: Assets/Infima Games/Low Poly Shooter Pack/_Legacy/Animator Controllers/Demo/(Legacy)AC_Demo_Plane_Doors.controller
+  uploadId: 556432

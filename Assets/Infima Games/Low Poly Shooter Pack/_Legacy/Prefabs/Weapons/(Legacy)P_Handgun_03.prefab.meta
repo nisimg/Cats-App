@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 221cc6283c2d3134da60fe92b867de0c
+timeCreated: 1553627580
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 54947
+  packageName: Low Poly Shooter Pack v4.3
+  packageVersion: 4.3.1
+  assetPath: Assets/Infima Games/Low Poly Shooter Pack/_Legacy/Prefabs/Weapons/(Legacy)P_Handgun_03.prefab
+  uploadId: 556432
