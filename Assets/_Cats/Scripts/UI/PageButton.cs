@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PageButton : MonoBehaviour
 {
-    [SerializeField]RectTransform iconRT;
+    [SerializeField] RectTransform iconRT;
     [SerializeField] private GameObject lable;
     [SerializeField] private float iconMoveDistance;
     [SerializeField] private float animationDuration;
@@ -22,14 +22,14 @@ public class PageButton : MonoBehaviour
         Debug.Log("Select");
         lable.SetActive(true);
         DOTween.Kill(iconRT);
-        iconRT.DOMoveY(iconMoveDistance,animationDuration);
+        iconRT.DOAnchorPosY(iconNormalY + iconMoveDistance, animationDuration);
     }
 
     public void DeSelect()
     {
-        Debug.Log("DeSelect",gameObject);
+        Debug.Log("DeSelect", gameObject);
         lable.SetActive(false);
         DOTween.Kill(iconRT);
-        iconRT.DOMoveY(iconNormalY,animationDuration);
+        iconRT.DOAnchorPosY(iconNormalY, animationDuration);
     }
 }
