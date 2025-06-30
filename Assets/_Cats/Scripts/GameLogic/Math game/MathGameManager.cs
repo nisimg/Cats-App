@@ -220,7 +220,7 @@ namespace _cats.Scripts.MathGame
         {
             if (!firstNumberZone.IsEmpty() && !secondNumberZone.IsEmpty() && !resultZone.IsEmpty())
             {
-                ShowFeedback("Equation complete! Press Check Answer to verify.", Color.blue);
+                ShowFeedback("Equation complete! Press Check Answer to verify.", Color.yellow);
             }
         }
 
