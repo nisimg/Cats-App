@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UnifiedSniperSystem : MonoBehaviour
+public class SniperSystem : MonoBehaviour
 {
     [Header("Mouse Control")]
     public float mouseSensitivity = 2f;
@@ -73,22 +73,19 @@ public class UnifiedSniperSystem : MonoBehaviour
     public GameObject bloodEffect;
     public float trailDuration = 0.1f;
     
-    // Private variables - Mouse Look
     private Vector2 mouseLook;
     private Vector2 smoothV;
     private float startingHorizontalRotation;
     private Vector2 recoilOffset;
     
-    // Private variables - Scope
     private bool isScoped = false;
     private Vector3 originalCrosshairPos;
     
-    // Private variables - Shooting
     private int currentAmmo;
     private bool isReloading = false;
     private bool canFire = true;
     
-    // Events
+
     public System.Action<int, int> OnAmmoChanged;
     public System.Action OnReloadStart;
     public System.Action OnReloadComplete;
@@ -101,32 +98,25 @@ public class UnifiedSniperSystem : MonoBehaviour
     
     void Initialize()
     {
-        // Setup camera
         if (playerCamera == null)
             playerCamera = Camera.main;
         if (playerCamera == null)
             playerCamera = GetComponentInChildren<Camera>();
         
-        // Setup audio
         if (audioSource == null)
             audioSource = GetComponent<AudioSource>();
         
-        // Setup fire point
         if (firePoint == null)
             firePoint = playerCamera.transform;
         
-        // Lock cursor
         Cursor.lockState = CursorLockMode.Locked;
         startingHorizontalRotation = transform.eulerAngles.y;
         
-        // Initialize ammo
         currentAmmo = magazineSize;
         OnAmmoChanged?.Invoke(currentAmmo, totalAmmo);
         
-        // Setup scope UI
         SetupScopeUI();
         
-        // Setup bullet trail
         if (bulletTrail)
         {
             bulletTrail.enabled = false;
@@ -169,7 +159,6 @@ public class UnifiedSniperSystem : MonoBehaviour
     
     void HandleInput()
     {
-        // Scope toggle
         if (Input.GetKeyDown(scopeKey))
         {
             if (isScoped)
@@ -178,13 +167,11 @@ public class UnifiedSniperSystem : MonoBehaviour
                 EnterScope();
         }
         
-        // Fire
         if (Input.GetKeyDown(fireKey))
         {
             TryFire();
         }
         
-        // Reload
         if (Input.GetKeyDown(reloadKey))
         {
             TryReload();
@@ -193,32 +180,25 @@ public class UnifiedSniperSystem : MonoBehaviour
     
     void HandleMouseLook()
     {
-        // Get mouse input
         Vector2 mouseDelta = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
         mouseDelta = Vector2.Scale(mouseDelta, new Vector2(mouseSensitivity, mouseSensitivity));
         
-        // Smooth the mouse movement
         smoothV.x = Mathf.Lerp(smoothV.x, mouseDelta.x, 1f / smoothing);
         smoothV.y = Mathf.Lerp(smoothV.y, mouseDelta.y, 1f / smoothing);
         mouseLook += smoothV;
         
-        // Add recoil offset
         Vector2 finalLook = mouseLook + recoilOffset;
         
-        // Apply rotation limits
         finalLook.y = Mathf.Clamp(finalLook.y, minVerticalAngle, maxVerticalAngle);
         
-        // Calculate horizontal rotation with limits
         float targetHorizontalRotation = startingHorizontalRotation + finalLook.x;
         float clampedHorizontalRotation = Mathf.Clamp(targetHorizontalRotation, 
             startingHorizontalRotation - maxHorizontalAngle, 
             startingHorizontalRotation + maxHorizontalAngle);
         
-        // Update actual mouse look to respect clamping
         float clampedMouseLookX = clampedHorizontalRotation - startingHorizontalRotation - recoilOffset.x;
         mouseLook.x = clampedMouseLookX;
         
-        // Apply rotations
         transform.localRotation = Quaternion.AngleAxis(clampedHorizontalRotation - startingHorizontalRotation, Vector3.up);
         playerCamera.transform.localRotation = Quaternion.AngleAxis(-finalLook.y, Vector3.right);
     }
@@ -229,23 +209,18 @@ public class UnifiedSniperSystem : MonoBehaviour
     {
         isScoped = true;
         
-        // Show scope UI
         if (scopeOverlay)
             scopeOverlay.SetActive(true);
         
-        // Hide gun model
         if (gunObject)
             gunObject.SetActive(false);
         
-        // Play sound
         if (audioSource && scopeInSound)
             audioSource.PlayOneShot(scopeInSound);
         
-        // Fade in scope
         if (scopeCanvasGroup)
             StartCoroutine(FadeScope(1f));
         
-        // Zoom camera
         StartCoroutine(SmoothZoom(scopedFOV));
         
         Cursor.visible = false;
@@ -255,25 +230,20 @@ public class UnifiedSniperSystem : MonoBehaviour
     {
         isScoped = false;
         
-        // Show gun model
         if (gunObject)
             gunObject.SetActive(true);
         
-        // Play sound
         if (audioSource && scopeOutSound)
             audioSource.PlayOneShot(scopeOutSound);
         
-        // Fade out scope
         if (scopeCanvasGroup)
             StartCoroutine(FadeScope(0f));
         else if (scopeOverlay)
             scopeOverlay.SetActive(false);
         
-        // Reset crosshair
         if (crosshair)
             crosshair.transform.localPosition = originalCrosshairPos;
         
-        // Zoom out camera
         StartCoroutine(SmoothZoom(normalFOV));
     }
     
@@ -338,7 +308,6 @@ public class UnifiedSniperSystem : MonoBehaviour
         
         if (currentAmmo <= 0)
         {
-            // Empty gun sound
             if (audioSource && emptySound)
                 audioSource.PlayOneShot(emptySound);
             return;
@@ -349,17 +318,13 @@ public class UnifiedSniperSystem : MonoBehaviour
     
     void Fire()
     {
-        // Consume ammo
         currentAmmo--;
         OnAmmoChanged?.Invoke(currentAmmo, totalAmmo);
         
-        // Calculate accuracy based on scope status
         float currentAccuracy = isScoped ? scopedAccuracy : baseAccuracy;
         
-        // Calculate shoot direction with spread
         Vector3 shootDirection = CalculateShootDirection(currentAccuracy);
         
-        // Perform raycast
         RaycastHit hit;
         Vector3 startPoint = firePoint.position;
         Vector3 endPoint = startPoint + shootDirection * range;
@@ -372,13 +337,10 @@ public class UnifiedSniperSystem : MonoBehaviour
             HandleHit(hit);
         }
         
-        // Effects
         StartCoroutine(FireEffects(startPoint, endPoint));
         
-        // Apply recoil
         ApplyRecoil();
         
-        // Fire rate control
         StartCoroutine(FireRateControl());
     }
     
@@ -386,14 +348,11 @@ public class UnifiedSniperSystem : MonoBehaviour
     {
         Vector3 baseDirection = playerCamera.transform.forward;
         
-        // Calculate spread based on accuracy
         float spread = (1f - accuracy) * maxSpread;
         
-        // Add random spread
         float spreadX = Random.Range(-spread, spread);
         float spreadY = Random.Range(-spread, spread);
         
-        // Apply spread to direction
         Vector3 spreadDirection = Quaternion.Euler(spreadY, spreadX, 0) * baseDirection;
         
         return spreadDirection.normalized;
@@ -401,13 +360,11 @@ public class UnifiedSniperSystem : MonoBehaviour
     
     void HandleHit(RaycastHit hit)
     {
-        // Apply damage if target has health component
         IDamageable damageable = hit.collider.GetComponent<IDamageable>();
         if (damageable != null)
         {
             float finalDamage = damage;
             
-            // Bonus damage for headshots
             if (hit.collider.CompareTag("Head"))
             {
                 finalDamage *= 2f;
@@ -417,14 +374,12 @@ public class UnifiedSniperSystem : MonoBehaviour
             damageable.TakeDamage(finalDamage);
             OnDamageDealt?.Invoke(finalDamage);
             
-            // Blood effect for living targets
             if (hit.collider.CompareTag("Enemy") || hit.collider.CompareTag("Player"))
             {
                 SpawnEffect(bloodEffect, hit.point, hit.normal);
             }
         }
         
-        // General hit effect
         SpawnEffect(hitEffect, hit.point, hit.normal);
         
         Debug.Log($"Hit: {hit.collider.name} at {hit.point}");
@@ -440,15 +395,12 @@ public class UnifiedSniperSystem : MonoBehaviour
     
     IEnumerator FireEffects(Vector3 startPoint, Vector3 endPoint)
     {
-        // Muzzle flash
         if (muzzleFlash)
             muzzleFlash.Play();
         
-        // Fire sound
         if (audioSource && fireSound)
             audioSource.PlayOneShot(fireSound);
         
-        // Bullet trail
         if (bulletTrail)
         {
             bulletTrail.enabled = true;
@@ -476,15 +428,12 @@ public class UnifiedSniperSystem : MonoBehaviour
     {
         float recoilAmount = recoilForce;
         
-        // Reduce recoil when scoped
         if (isScoped)
             recoilAmount *= scopedRecoilMultiplier;
         
-        // Calculate random recoil
         float recoilX = Random.Range(-recoilAmount * 0.5f, recoilAmount * 0.5f);
         float recoilY = Random.Range(recoilAmount * 0.5f, recoilAmount);
         
-        // Apply recoil to offset
         recoilOffset += new Vector2(recoilX, recoilY);
         
         Debug.Log($"Applied recoil: X={recoilX:F2}, Y={recoilY:F2}");
@@ -492,12 +441,10 @@ public class UnifiedSniperSystem : MonoBehaviour
     
     void HandleRecoilRecovery()
     {
-        // Smoothly recover from recoil
         if (recoilOffset.magnitude > 0.01f)
         {
             recoilOffset = Vector2.Lerp(recoilOffset, Vector2.zero, Time.deltaTime * recoilRecoverySpeed);
             
-            // Stop recovery when close enough to zero
             if (recoilOffset.magnitude < 0.01f)
                 recoilOffset = Vector2.zero;
         }
@@ -520,7 +467,6 @@ public class UnifiedSniperSystem : MonoBehaviour
         isReloading = true;
         OnReloadStart?.Invoke();
         
-        // Play reload sound
         if (audioSource && reloadSound)
             audioSource.PlayOneShot(reloadSound);
         
@@ -528,7 +474,6 @@ public class UnifiedSniperSystem : MonoBehaviour
         
         yield return new WaitForSeconds(reloadTime);
         
-        // Calculate ammo to reload
         int ammoNeeded = magazineSize - currentAmmo;
         int ammoToReload = Mathf.Min(ammoNeeded, totalAmmo);
         
