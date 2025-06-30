@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class SwipeController : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class SwipeController : CATSMonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [Header("Swipe Settings")]
     [SerializeField] private float minSwipeDistance = 50f;

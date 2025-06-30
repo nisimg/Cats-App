@@ -1,9 +1,10 @@
 ﻿using System;
+using _cats.Scripts.Core;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PageButtonsParent : MonoBehaviour
+public class PageButtonsParent : CATSMonoBehaviour
 {
     [SerializeField] Transform pageButtonParent;
     [SerializeField] private UIManager uiManager;
@@ -19,15 +20,20 @@ public class PageButtonsParent : MonoBehaviour
             pageButtonParent.GetChild(i).GetComponent<Button>().onClick.AddListener((() => uiManager.ShowPage(_i)));
         }
 
-        uiManager.pageChanged += OnPageChanged;
+        AddListener(CATSEventNames.pageChanged,(OnPageChanged));
+    }
+
+    private void OnPageChanged(object obj)
+    {
+        OnPageChanged((int) obj);
     }
 
     private void OnPageChanged(int pageIndex)
     {
         if (currentPage == pageIndex) return;
-        
+
         UpdatePageButtonState(pageIndex);
-        
+
         for (int i = 0; i < pageButtonParent.childCount; i++)
         {
             var element = pageButtonParent.GetChild(i).GetComponent<LayoutElement>();
@@ -47,17 +53,15 @@ public class PageButtonsParent : MonoBehaviour
                 UpadtePageButtonWidth(element, x);
             }, to, animationDuration).SetEase(Ease.OutExpo);
         }
-        
+
         currentPage = pageIndex;
     }
 
     private void UpdatePageButtonState(int pageIndex)
     {
-        Debug.Log("UpdatePageButtonState");
-        
-        if(currentPage >= 0) 
+        if (currentPage >= 0)
             pageButtonParent.GetChild(currentPage).GetComponent<PageButton>().DeSelect();
-            
+
         pageButtonParent.GetChild(pageIndex).GetComponent<PageButton>().Select();
     }
 

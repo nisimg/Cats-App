@@ -1,26 +1,23 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using _cats.Scripts.Core;
 using DG.Tweening;
 using UnityEngine;
 
-public class UIManager : MonoBehaviour
+public class UIManager : CATSMonoBehaviour
 {
     private float pageWidth;
     int currentPageIndex = -1;
     [SerializeField] private RectTransform pagePerent;
     [SerializeField] private RectTransform ScrollebleRect;
-    public Action<int> pageChanged;
     [SerializeField] private float pageSwepDur = 0.5f;
 
-    // Public properties
     public int CurrentPageIndex => currentPageIndex;
     public int TotalPages => pagePerent.childCount;
     
-    // Session-only page memory (not saved between app launches)
     private static int? sessionLastPage = null;
     
-    // Animation state
     private bool isTransitioning = false;
 
     private IEnumerator Start()
@@ -57,11 +54,11 @@ public class UIManager : MonoBehaviour
             uiPage.Show();
         }
         
-        pageChanged?.Invoke(pageIndex);
-        staticPageChanged?.Invoke();
+        //pageChanged?.Invoke(pageIndex);
+        InvokeEvent(CATSEventNames.pageChanged, pageIndex);
+        //staticPageChanged?.Invoke();
         currentPageIndex = pageIndex;
         
-        // Save current page for this session only
         SaveCurrentPageForSession();
     }
     

@@ -2,7 +2,7 @@ using System;
 using DG.Tweening;
 using UnityEngine;
 
-public class PageButton : MonoBehaviour
+public class PageButton : CATSMonoBehaviour
 {
     [SerializeField] RectTransform iconRT;
     [SerializeField] private GameObject lable;

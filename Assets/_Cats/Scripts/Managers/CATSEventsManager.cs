@@ -62,7 +62,8 @@ namespace _cats.Scripts.Core
         OnSceneLoaded,
         OnSceneUnloaded,
         OnAdditiveSceneLoaded,
-        OnAdditiveSceneUnloaded
+        OnAdditiveSceneUnloaded,
+        pageChanged
     }
 }
 
